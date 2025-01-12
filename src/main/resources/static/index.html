@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>压测工具 - 测试列表</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="container">
+    <h1>压测工具 - 测试列表</h1>
+    <div class="content">
+        <button id="new-test-btn">开始新的测试</button>
+        <table id="test-table">
+            <thead>
+            <tr>
+                <th>测试名称</th>
+                <th>测试脚本</th>
+                <th>作业数量</th>
+                <th>提交方式</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody id="test-table-body">
+            <!-- 动态加载测试数据 -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- 新增测试弹窗 -->
+<div id="new-test-modal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>开始新的测试</h2>
+        <form id="new-test-form">
+            <label for="test-name">测试名称:</label>
+            <input type="text" id="test-name" name="test-name" required>
+
+            <label for="test-script">测试脚本:</label>
+            <select id="test-script" name="test-script" required>
+                <!-- 脚本选项将从服务器动态加载 -->
+            </select>
+
+            <label for="job-count">作业数量:</label>
+            <input type="number" id="job-count" name="job-count" required>
+
+            <label>作业提交方式:</label>
+            <label><input type="radio" name="submit-method" value="full" checked> 全量</label>
+            <label><input type="radio" name="submit-method" value="gradual"> 逐渐增加</label>
+
+            <div id="gradual-options" style="display: none;">
+                <label for="interval">增加间隔时间(ms):</label>
+                <input type="number" id="interval" name="interval">
+
+                <label for="increment">增加作业数量:</label>
+                <input type="number" id="increment" name="increment">
+            </div>
+
+            <button type="submit">开始测试</button>
+        </form>
+    </div>
+</div>
+
+<!-- 引用列表页的 JavaScript 文件 -->
+<script src="list.js"></script>
+</body>
+</html>

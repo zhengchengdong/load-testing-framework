@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>压测工具 - 测试详情</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="container">
+    <!-- 返回列表按钮 -->
+    <button id="back-to-list-btn" class="back-btn">返回列表</button>
+
+    <h1>压测工具 - 测试详情</h1>
+    <div class="content detail-content">
+        <div class="detail-section">
+            <h2 id="test-name">测试名称</h2>
+            <div class="detail-row">
+                <span class="detail-label">当前作业数量:</span>
+                <span id="current-job-count" class="detail-value">0</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">设定作业数量:</span>
+                <span id="set-job-count" class="detail-value">0</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">请求数:</span>
+                <span id="total-requests" class="detail-value">0</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">RPS:</span>
+                <span id="rps" class="detail-value">0</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">平均延时:</span>
+                <span id="avg-latency" class="detail-value">0 ms</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">失败请求数量:</span>
+                <span id="failed-requests" class="detail-value">0</span>
+            </div>
+        </div>
+        <button id="stop-test-btn" class="stop-btn">停止测试</button>
+    </div>
+</div>
+
+<!-- 引用详情页的 JavaScript 文件 -->
+<script src="detail.js"></script>
+</body>
+</html>
