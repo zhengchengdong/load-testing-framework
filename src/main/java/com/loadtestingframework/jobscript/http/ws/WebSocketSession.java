@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class WebSocketSession {
 
-    private org.springframework.web.socket.WebSocketSession wsSession;
+    private volatile org.springframework.web.socket.WebSocketSession wsSession;
     //用一个队列来存储发送的消息，需要保证线程安全
     private Queue<String> receivedMessages = new ConcurrentLinkedQueue<>();
 
@@ -39,21 +39,35 @@ public class WebSocketSession {
 
     //获取一条消息,并解析成对象
     public <T> T receive(Class<T> receiveObjType) {
+        return receive(receiveObjType, -1);
+    }
+
+    public <T> T receive(Class<T> receiveObjType, long timeout) {
         long jobId = JobContext.getJobId();
         JobExecuteService jobExecuteService = JobContext.getJobExecuteService();
         if (jobExecuteService.isJobStopped(jobId)) {
             throw new JobStoppedException();
         }
 
-        String msg = receivedMessages.poll();
-        if (msg == null) {
-            return null;
-        }
-        ObjectMapper objectMapper = JobContext.getObjectMapper();
-        try {
-            return objectMapper.readValue(msg, receiveObjType);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        long startTime = System.currentTimeMillis();
+        while (true) {
+            String msg = receivedMessages.poll();
+            if (msg != null) {
+                ObjectMapper objectMapper = JobContext.getObjectMapper();
+                try {
+                    return objectMapper.readValue(msg, receiveObjType);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            long currentTime = System.currentTimeMillis();
+            if (currentTime - startTime > timeout) {
+                return null;
+            }
+            try {
+                Thread.sleep(10);
+            } catch (Exception e) {
+            }
         }
     }
 

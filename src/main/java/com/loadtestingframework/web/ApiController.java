@@ -58,7 +58,8 @@ public class ApiController {
     public CommonVO getTest(@PathVariable String testId) {
         LoadTest loadTest = loadTestService.getLoadTest(testId);
         TestMetrics testMetrics = loadTestService.getTestMetrics(testId);
-        return CommonVO.success(new LoadTestDetailVO(loadTest, testMetrics));
+        int currentJobCount = jobExecuteService.getJobCount(testId);
+        return CommonVO.success(new LoadTestDetailVO(loadTest, testMetrics, currentJobCount));
     }
 
     //POST /api/tests/{testId}/stop：停止指定测试

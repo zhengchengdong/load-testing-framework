@@ -165,6 +165,18 @@ public class JobExecuteService {
         }
     }
 
+    public int getJobCount(String testId) {
+        List<Long> allJobId = jobExecuteStateRepository.queryAllIds();
+        int count = 0;
+        for (long jobId : allJobId) {
+            JobExecuteState jobExecuteState = jobExecuteStateRepository.find(jobId);
+            if (jobExecuteState.getTestName().equals(testId)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
 
     public void setJobExecuteStateRepository(JobExecuteStateRepository jobExecuteStateRepository) {
         this.jobExecuteStateRepository = jobExecuteStateRepository;
@@ -181,4 +193,6 @@ public class JobExecuteService {
     public void setLoadTestRepository(LoadTestRepository loadTestRepository) {
         this.loadTestRepository = loadTestRepository;
     }
+
+
 }

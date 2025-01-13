@@ -15,9 +15,9 @@ public class LoadTestDetailVO {
     public LoadTestDetailVO() {
     }
 
-    public LoadTestDetailVO(LoadTest loadTest, TestMetrics testMetrics) {
+    public LoadTestDetailVO(LoadTest loadTest, TestMetrics testMetrics, int currentJobCount) {
         this.name = loadTest.getName();
-        this.currentJobCount = loadTest.getJobAddedAmount();
+        this.currentJobCount = currentJobCount;
         this.setJobCount = loadTest.getJobAmount();
         this.rps = testMetrics.getRps();
         this.avgLatency = testMetrics.getAvgLatency();
