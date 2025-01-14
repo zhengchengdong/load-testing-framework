@@ -9,9 +9,11 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.List;
 
 public class AjaxPostSender {
-    public static <T> T send(String uriStr, Object requestBody, Class<T> responseType) {
+
+    public static <T> T send(String uriStr, HttpHeader header, Object requestBody, Class<T> responseType) {
         long jobId = JobContext.getJobId();
         JobExecuteService jobExecuteService = JobContext.getJobExecuteService();
         if (jobExecuteService.isJobStopped(jobId)) {
@@ -22,11 +24,21 @@ public class AjaxPostSender {
         try {
             URI uri = new URI(uriStr);
             String requestBodyStr = objectMapper.writeValueAsString(requestBody);
-            HttpRequest request = HttpRequest.newBuilder()
+            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
                     .uri(uri)
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(requestBodyStr))
-                    .build();
+                    .header("Content-Type", "application/json");
+            if (header != null) {
+                List<String> headers = header.getHeaders();
+                for (int i = 0; i < headers.size(); i += 2) {
+                    requestBuilder.header(headers.get(i), headers.get(i + 1));
+                }
+            }
+            if (requestBody != null) {
+                requestBuilder.POST(HttpRequest.BodyPublishers.ofString(requestBodyStr));
+            } else {
+                requestBuilder.POST(HttpRequest.BodyPublishers.noBody());
+            }
+            HttpRequest request = requestBuilder.build();
             long startTime = System.currentTimeMillis();
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             long endTime = System.currentTimeMillis();
@@ -40,5 +52,9 @@ public class AjaxPostSender {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static <T> T send(String uriStr, Object requestBody, Class<T> responseType) {
+        return send(uriStr, null, requestBody, responseType);
     }
 }
