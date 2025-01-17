@@ -23,7 +23,6 @@ public class AjaxPostSender {
         ObjectMapper objectMapper = JobContext.getObjectMapper();
         try {
             URI uri = new URI(uriStr);
-            String requestBodyStr = objectMapper.writeValueAsString(requestBody);
             HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
                     .uri(uri)
                     .header("Content-Type", "application/json");
@@ -34,6 +33,7 @@ public class AjaxPostSender {
                 }
             }
             if (requestBody != null) {
+                String requestBodyStr = objectMapper.writeValueAsString(requestBody);
                 requestBuilder.POST(HttpRequest.BodyPublishers.ofString(requestBodyStr));
             } else {
                 requestBuilder.POST(HttpRequest.BodyPublishers.noBody());

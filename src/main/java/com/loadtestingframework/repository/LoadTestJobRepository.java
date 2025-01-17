@@ -1,7 +1,10 @@
 package com.loadtestingframework.repository;
 
 import com.loadtestingframework.entity.LoadTestJob;
-import dml.largescaletaskmanagement.repository.LargeScaleTaskSegmentRepository;
+import dml.common.repository.CommonRepository;
 
-public interface LoadTestJobRepository extends LargeScaleTaskSegmentRepository<LoadTestJob, Long> {
+import java.util.List;
+
+public interface LoadTestJobRepository extends CommonRepository<LoadTestJob, Long> {
+    List<Long> getAllIds();
 }

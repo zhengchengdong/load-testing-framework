@@ -1,7 +1,6 @@
 package com.loadtestingframework.scheduled;
 
-import com.loadtestingframework.entity.LoadTest;
-import com.loadtestingframework.entity.LoadTestJob;
+import com.loadtestingframework.entity.LoadTestLargeScaleTaskSegment;
 import com.loadtestingframework.service.JobExecuteService;
 import com.loadtestingframework.service.LoadTestService;
 import erp.repository.TakeEntityException;
@@ -31,8 +30,8 @@ public class ScheduledController {
             List<String> allTestNames = loadTestService.getAllTestNames();
             for (String testName : allTestNames) {
                 try {
-                    LoadTest loadTest = loadTestService.addJobForTest(testName, System.currentTimeMillis());
-                    if (!loadTest.isStopped() && !loadTest.isAllJobAdded()) {
+                    boolean needToAdd = loadTestService.addJobForTest(testName, System.currentTimeMillis());
+                    if (needToAdd) {
                         noTestNeedToAddJob = false;
                     }
                 } catch (TakeEntityException e) {
@@ -54,16 +53,16 @@ public class ScheduledController {
         List<String> allTestNames = loadTestService.getAllTestNames();
         for (String testName : allTestNames) {
             while (true) {
-                LoadTestJob loadTestJob = null;
+                LoadTestLargeScaleTaskSegment loadTestTaskSegment = null;
                 try {
-                    loadTestJob = loadTestService.takeJobToExecute(testName, System.currentTimeMillis());
-                    if (loadTestJob == null) {
+                    loadTestTaskSegment = loadTestService.takeJobToExecute(testName, System.currentTimeMillis());
+                    if (loadTestTaskSegment == null) {
                         break;
                     }
                 } catch (TakeEntityException e) {
                     continue;
                 }
-                jobExecuteService.executeJob(loadTestJob);
+                jobExecuteService.executeJob(loadTestTaskSegment);
             }
         }
     }
@@ -83,6 +82,20 @@ public class ScheduledController {
     }
 
     /**
+     * 计算当前Job数量
+     */
+    @Scheduled(fixedRate = 1000)
+    public void calculateCurrentJobAmount() {
+        List<String> allTestNames = loadTestService.getAllTestNames();
+        for (String testName : allTestNames) {
+            try {
+                loadTestService.calculateCurrentJobAmount(testName);
+            } catch (TakeEntityException e) {
+            }
+        }
+    }
+
+    /**
      * 停止Job
      */
     @Scheduled(fixedRate = 1000)
@@ -90,6 +103,23 @@ public class ScheduledController {
         List<String> allTestNames = loadTestService.getAllTestNames();
         for (String testName : allTestNames) {
             jobExecuteService.stopJobsForStoppedTest(testName);
+        }
+    }
+
+    /**
+     * 删除已被删除的测试的Job
+     */
+    @Scheduled(fixedRate = 10000)
+    public void deleteJobsForDeletedTest() {
+        List<String> allTestNames = loadTestService.getAllTestNames();
+        List<Long> allJobIds = loadTestService.getAllJobIds();
+        for (Long jobId : allJobIds) {
+            loadTestService.deleteJobIfTestNotExist(jobId, allTestNames);
+            try {
+                Thread.sleep(20L);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 }

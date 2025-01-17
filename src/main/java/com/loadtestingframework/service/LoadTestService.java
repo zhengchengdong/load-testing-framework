@@ -1,9 +1,6 @@
 package com.loadtestingframework.service;
 
-import com.loadtestingframework.entity.HttpExchange;
-import com.loadtestingframework.entity.LoadTest;
-import com.loadtestingframework.entity.LoadTestJob;
-import com.loadtestingframework.entity.TestMetrics;
+import com.loadtestingframework.entity.*;
 import com.loadtestingframework.repository.*;
 import dml.largescaletaskmanagement.entity.LargeScaleTaskSegment;
 import dml.largescaletaskmanagement.repository.LargeScaleTaskRepository;
@@ -28,7 +25,14 @@ public class LoadTestService implements LargeScaleTaskServiceRepositorySet {
     private LoadTestJobRepository loadTestJobRepository;
 
     @Autowired
+    private LoadTestLargeScaleTaskRepository loadTestLargeScaleTaskRepository;
+
+    @Autowired
+    private LoadTestLargeScaleTaskSegmentRepository loadTestLargeScaleTaskSegmentRepository;
+
+    @Autowired
     private LoadTestJobIdGeneratorRepository loadTestJobIdGeneratorRepository;
+
 
     @Autowired
     private TestMetricsRepository testMetricsRepository;
@@ -36,14 +40,19 @@ public class LoadTestService implements LargeScaleTaskServiceRepositorySet {
     @Autowired
     private HttpExchangeRepository httpExchangeRepository;
 
+
     @Process
     public void createTest(String testName, String jobScriptName, int jobAmount, long currTime) {
         LoadTest loadTest = new LoadTest();
+        loadTest.setName(testName);
         loadTest.setJobScriptName(jobScriptName);
         loadTest.setJobAmount(jobAmount);
+        loadTestRepository.put(loadTest);
+        LoadTestLargeScaleTask task = loadTest.createLargeScaleTask();
         LargeScaleTaskService.createTask(this,
-                testName, loadTest, currTime);
-        loadTest.readyToProcess();
+                testName, task, currTime);
+        LargeScaleTaskService.setTaskReadyToProcess(this,
+                testName);
     }
 
     @Process
@@ -55,9 +64,12 @@ public class LoadTestService implements LargeScaleTaskServiceRepositorySet {
         loadTest.setJobAmount(jobAmount);
         loadTest.setJobAddAmount(jobAddAmount);
         loadTest.setJobAddInterval(jobAddInterval);
+        loadTestRepository.put(loadTest);
+        LoadTestLargeScaleTask task = loadTest.createLargeScaleTask();
         LargeScaleTaskService.createTask(this,
-                testName, loadTest, currTime);
-        loadTest.readyToProcess();
+                testName, task, currTime);
+        LargeScaleTaskService.setTaskReadyToProcess(this,
+                testName);
     }
 
     public List<String> getAllTestNames() {
@@ -65,40 +77,45 @@ public class LoadTestService implements LargeScaleTaskServiceRepositorySet {
     }
 
     @Process
-    public LoadTest addJobForTest(String testName, long currTime) {
-        LoadTest loadTest = loadTestRepository.take(testName);
-        if (loadTest.isStopped() || loadTest.isAllJobAdded()) {
-            return loadTest;
+    public boolean addJobForTest(String testName, long currTime) {
+        LoadTest loadTest = loadTestRepository.find(testName);
+        LoadTestLargeScaleTask loadTestTask = loadTestLargeScaleTaskRepository.take(testName);
+        if (loadTest.isStopped() || loadTestTask.isAllJobAdded()) {
+            return false;
         }
-        if (!loadTest.isGraduallyAddJob()) {
-            for (int i = 0; i < loadTest.getJobAmount(); i++) {
+        if (!loadTestTask.isGraduallyAddJob()) {
+            for (int i = 0; i < loadTestTask.getJobAmount(); i++) {
                 LoadTestJob loadTestJob = new LoadTestJob();
                 loadTestJob.setId(loadTestJobIdGeneratorRepository.take().generateId());
                 loadTestJob.setTestName(testName);
-                loadTestJob.setJobScriptName(loadTest.getJobScriptName());
+                loadTestJob.setJobScriptName(loadTestTask.getJobScriptName());
+                loadTestJobRepository.put(loadTestJob);
+                LoadTestLargeScaleTaskSegment taskSegment = loadTestJob.createLargeScaleTaskSegment();
                 LargeScaleTaskService.addTaskSegment(this,
-                        testName, loadTestJob);
+                        testName, taskSegment);
             }
-            loadTest.jobAdded(loadTest.getJobAmount(), currTime);
+            loadTestTask.jobAdded(loadTestTask.getJobAmount(), currTime);
         } else {
-            if (loadTest.isTimeToAddJob(currTime)) {
-                int jobToAddAmount = loadTest.getJobToAddAmount();
+            if (loadTestTask.isTimeToAddJob(currTime)) {
+                int jobToAddAmount = loadTestTask.getJobToAddAmount();
                 for (int i = 0; i < jobToAddAmount; i++) {
                     LoadTestJob loadTestJob = new LoadTestJob();
                     loadTestJob.setId(loadTestJobIdGeneratorRepository.take().generateId());
                     loadTestJob.setTestName(testName);
-                    loadTestJob.setJobScriptName(loadTest.getJobScriptName());
+                    loadTestJob.setJobScriptName(loadTestTask.getJobScriptName());
+                    loadTestJobRepository.put(loadTestJob);
+                    LoadTestLargeScaleTaskSegment taskSegment = loadTestJob.createLargeScaleTaskSegment();
                     LargeScaleTaskService.addTaskSegment(this,
-                            testName, loadTestJob);
+                            testName, taskSegment);
                 }
-                loadTest.jobAdded(jobToAddAmount, currTime);
+                loadTestTask.jobAdded(jobToAddAmount, currTime);
             }
         }
-        return loadTest;
+        return true;
     }
 
     @Process
-    public LoadTestJob takeJobToExecute(String testName, long currTime) {
+    public LoadTestLargeScaleTaskSegment takeJobToExecute(String testName, long currTime) {
         TakeTaskSegmentToExecuteResult result = LargeScaleTaskService.takeTaskSegmentToExecute(this,
                 testName, currTime, 1, 1);
         LargeScaleTaskSegment taskSegment = result.getTaskSegment();
@@ -107,7 +124,7 @@ public class LoadTestService implements LargeScaleTaskServiceRepositorySet {
         }
         LargeScaleTaskService.completeTaskSegment(this,
                 taskSegment.getId());
-        return (LoadTestJob) taskSegment;
+        return (LoadTestLargeScaleTaskSegment) taskSegment;
     }
 
     @Process
@@ -136,6 +153,7 @@ public class LoadTestService implements LargeScaleTaskServiceRepositorySet {
     @Process
     public void deleteTest(String testName) {
         loadTestRepository.remove(testName);
+        loadTestLargeScaleTaskRepository.remove(testName);
         testMetricsRepository.remove(testName);
     }
 
@@ -150,20 +168,52 @@ public class LoadTestService implements LargeScaleTaskServiceRepositorySet {
     public List<LoadTest> getAllTests() {
         List<LoadTest> loadTests = new ArrayList<>();
         List<String> allTestNames = loadTestRepository.getAllTestNames();
+        //给allTestNames排序
+        allTestNames.sort(String::compareTo);
         for (String testName : allTestNames) {
             loadTests.add(loadTestRepository.find(testName));
         }
         return loadTests;
     }
 
+    @Process
+    public void calculateCurrentJobAmount(String testName) {
+        LoadTest loadTest = loadTestRepository.take(testName);
+        List<Long> allJobIds = loadTestJobRepository.getAllIds();
+        int currentJobAmount = 0;
+        for (long jobId : allJobIds) {
+            LoadTestJob loadTestJob = loadTestJobRepository.find(jobId);
+            if (loadTestJob.getTestName().equals(testName)) {
+                currentJobAmount++;
+            }
+        }
+        loadTest.setCurrentJobAmount(currentJobAmount);
+    }
+
+    public List<Long> getAllJobIds() {
+        return loadTestJobRepository.getAllIds();
+    }
+
+    @Process
+    public void deleteJobIfTestNotExist(Long jobId, List<String> allTestNames) {
+        LoadTestJob loadTestJob = loadTestJobRepository.find(jobId);
+        if (!allTestNames.contains(loadTestJob.getTestName())) {
+            loadTestJobRepository.remove(jobId);
+        }
+    }
+
+    public LoadTestLargeScaleTask getLoadTestLargeScaleTask(String testName) {
+        return loadTestLargeScaleTaskRepository.find(testName);
+    }
+
     @Override
     public LargeScaleTaskRepository getLargeScaleTaskRepository() {
-        return loadTestRepository;
+        return loadTestLargeScaleTaskRepository;
     }
 
     @Override
     public LargeScaleTaskSegmentRepository getLargeScaleTaskSegmentRepository() {
-        return loadTestJobRepository;
+        return loadTestLargeScaleTaskSegmentRepository;
     }
 
     public void setLoadTestRepository(LoadTestRepository loadTestRepository) {
@@ -186,5 +236,11 @@ public class LoadTestService implements LargeScaleTaskServiceRepositorySet {
         this.httpExchangeRepository = httpExchangeRepository;
     }
 
+    public void setLoadTestLargeScaleTaskRepository(LoadTestLargeScaleTaskRepository loadTestLargeScaleTaskRepository) {
+        this.loadTestLargeScaleTaskRepository = loadTestLargeScaleTaskRepository;
+    }
 
+    public void setLoadTestLargeScaleTaskSegmentRepository(LoadTestLargeScaleTaskSegmentRepository loadTestLargeScaleTaskSegmentRepository) {
+        this.loadTestLargeScaleTaskSegmentRepository = loadTestLargeScaleTaskSegmentRepository;
+    }
 }

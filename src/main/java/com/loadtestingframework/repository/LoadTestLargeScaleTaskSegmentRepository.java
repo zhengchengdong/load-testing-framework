@@ -1,0 +1,7 @@
+package com.loadtestingframework.repository;
+
+import com.loadtestingframework.entity.LoadTestLargeScaleTaskSegment;
+import dml.largescaletaskmanagement.repository.LargeScaleTaskSegmentRepository;
+
+public interface LoadTestLargeScaleTaskSegmentRepository extends LargeScaleTaskSegmentRepository<LoadTestLargeScaleTaskSegment, Long> {
+}

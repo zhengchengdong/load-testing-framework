@@ -1,13 +1,10 @@
 package com.loadtestingframework.entity;
 
-import dml.largescaletaskmanagement.entity.LargeScaleTaskBase;
-
-public class LoadTest extends LargeScaleTaskBase {
+public class LoadTest {
 
     private String name;
     private String jobScriptName;
     private int jobAmount;
-    private boolean allJobAdded;
 
     /**
      * job增加间隔时间（ms）
@@ -19,45 +16,28 @@ public class LoadTest extends LargeScaleTaskBase {
      */
     private int jobAddAmount;
 
-    private long lastAddJobTime;
-    private int jobAddedAmount;
+    private int currentJobAmount;
+
     private boolean stopped;
 
-    /**
-     * 判断是否是逐渐增加job的方式
-     */
+    public LoadTestLargeScaleTask createLargeScaleTask() {
+        LoadTestLargeScaleTask task = new LoadTestLargeScaleTask();
+        task.setName(name);
+        task.setJobScriptName(jobScriptName);
+        task.setJobAmount(jobAmount);
+        task.setJobAddInterval(jobAddInterval);
+        task.setJobAddAmount(jobAddAmount);
+        return task;
+    }
+
     public boolean isGraduallyAddJob() {
         return jobAddInterval > 0;
     }
 
-    public boolean isTimeToAddJob(long currTime) {
-        if (lastAddJobTime == 0) {
-            return true;
-        }
-        return currTime - lastAddJobTime >= jobAddInterval;
-    }
-
-    public int getJobToAddAmount() {
-        if (jobAmount - jobAddedAmount < jobAddAmount) {
-            return jobAmount - jobAddedAmount;
-        }
-        return jobAddAmount;
-    }
-
-    public void jobAdded(int addedAmount, long currTime) {
-        jobAddedAmount += addedAmount;
-        if (jobAddedAmount >= jobAmount) {
-            allJobAdded = true;
-        }
-        lastAddJobTime = currTime;
-    }
-
-    @Override
     public void setName(String name) {
         this.name = name;
     }
 
-    @Override
     public String getName() {
         return name;
     }
@@ -78,14 +58,6 @@ public class LoadTest extends LargeScaleTaskBase {
         this.jobAmount = jobAmount;
     }
 
-    public boolean isAllJobAdded() {
-        return allJobAdded;
-    }
-
-    public void setAllJobAdded(boolean allJobAdded) {
-        this.allJobAdded = allJobAdded;
-    }
-
     public long getJobAddInterval() {
         return jobAddInterval;
     }
@@ -102,20 +74,12 @@ public class LoadTest extends LargeScaleTaskBase {
         this.jobAddAmount = jobAddAmount;
     }
 
-    public long getLastAddJobTime() {
-        return lastAddJobTime;
+    public int getCurrentJobAmount() {
+        return currentJobAmount;
     }
 
-    public void setLastAddJobTime(long lastAddJobTime) {
-        this.lastAddJobTime = lastAddJobTime;
-    }
-
-    public int getJobAddedAmount() {
-        return jobAddedAmount;
-    }
-
-    public void setJobAddedAmount(int jobAddedAmount) {
-        this.jobAddedAmount = jobAddedAmount;
+    public void setCurrentJobAmount(int currentJobAmount) {
+        this.currentJobAmount = currentJobAmount;
     }
 
     public boolean isStopped() {
@@ -125,4 +89,6 @@ public class LoadTest extends LargeScaleTaskBase {
     public void setStopped(boolean stopped) {
         this.stopped = stopped;
     }
+
+
 }

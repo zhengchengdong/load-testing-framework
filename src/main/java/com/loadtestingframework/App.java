@@ -1,11 +1,9 @@
 package com.loadtestingframework;
 
-import com.loadtestingframework.entity.LoadTestJob;
+import com.loadtestingframework.entity.LoadTestLargeScaleTask;
+import com.loadtestingframework.entity.LoadTestLargeScaleTaskSegment;
 import com.loadtestingframework.entity.TestMetrics;
-import com.loadtestingframework.repository.HttpExchangeIdGeneratorRepository;
-import com.loadtestingframework.repository.LoadTestJobIdGeneratorRepository;
-import com.loadtestingframework.repository.LoadTestJobRepository;
-import com.loadtestingframework.repository.TestMetricsRepository;
+import com.loadtestingframework.repository.*;
 import dml.id.entity.IdGenerator;
 import dml.id.entity.SnowflakeIdGenerator;
 import erp.ERP;
@@ -34,12 +32,6 @@ public class App {
     }
 
     @Bean
-    public LoadTestJobRepository loadTestJobRepository() {
-        return RepositoryFactory.newInstance(LoadTestJobRepository.class,
-                new RedisRepository(redisTemplate, LoadTestJob.class));
-    }
-
-    @Bean
     public LoadTestJobIdGeneratorRepository loadTestJobIdGeneratorRepository() {
         return SingletonRepositoryFactory.newInstance(LoadTestJobIdGeneratorRepository.class,
                 new MemSingletonRepository<IdGenerator<Long>>(new SnowflakeIdGenerator(1L),
@@ -57,6 +49,18 @@ public class App {
         return SingletonRepositoryFactory.newInstance(HttpExchangeIdGeneratorRepository.class,
                 new MemSingletonRepository<IdGenerator<Long>>(new SnowflakeIdGenerator(1L),
                         "httpExchangeIdGeneratorRepository"));
+    }
+
+    @Bean
+    public LoadTestLargeScaleTaskRepository loadTestLargeScaleTaskRepository() {
+        return RepositoryFactory.newInstance(LoadTestLargeScaleTaskRepository.class,
+                new RedisRepository(redisTemplate, LoadTestLargeScaleTask.class));
+    }
+
+    @Bean
+    public LoadTestLargeScaleTaskSegmentRepository loadTestLargeScaleTaskSegmentRepository() {
+        return RepositoryFactory.newInstance(LoadTestLargeScaleTaskSegmentRepository.class,
+                new RedisRepository(redisTemplate, LoadTestLargeScaleTaskSegment.class));
     }
 
 }

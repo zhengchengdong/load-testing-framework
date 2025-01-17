@@ -1,15 +1,9 @@
 package com.loadtestingframework.service;
 
-import com.loadtestingframework.entity.HttpExchange;
-import com.loadtestingframework.entity.JobExecuteState;
-import com.loadtestingframework.entity.LoadTest;
-import com.loadtestingframework.entity.LoadTestJob;
+import com.loadtestingframework.entity.*;
 import com.loadtestingframework.jobscript.JobContext;
 import com.loadtestingframework.jobscript.JobStoppedException;
-import com.loadtestingframework.repository.HttpExchangeIdGeneratorRepository;
-import com.loadtestingframework.repository.HttpExchangeRepository;
-import com.loadtestingframework.repository.JobExecuteStateRepository;
-import com.loadtestingframework.repository.LoadTestRepository;
+import com.loadtestingframework.repository.*;
 import dml.id.entity.IdGenerator;
 import erp.annotation.Process;
 import erp.repository.TakeEntityException;
@@ -42,6 +36,10 @@ public class JobExecuteService {
     @Autowired
     private LoadTestRepository loadTestRepository;
 
+    @Autowired
+    private LoadTestJobRepository loadTestJobRepository;
+
+
     /**
      * 线程池
      */
@@ -49,14 +47,16 @@ public class JobExecuteService {
 
 
     @Process
-    public void executeJob(LoadTestJob job) {
-        long jobId = (long) job.getId();
-        String testName = job.getTestName();
-        String jobScriptName = job.getJobScriptName();
+    public void executeJob(LoadTestLargeScaleTaskSegment taskSegment) {
+        long jobId = (long) taskSegment.getId();
+        String testName = taskSegment.getTestName();
+        String jobScriptName = taskSegment.getJobScriptName();
         JobExecuteState jobExecuteState = new JobExecuteState();
         jobExecuteState.setJobId(jobId);
         jobExecuteState.setTestName(testName);
         jobExecuteStateRepository.put(jobExecuteState);
+        LoadTestJob loadTestJob = loadTestJobRepository.take(jobId);
+        loadTestJob.setStarted(true);
         threadPool.execute(() -> {
             JobContext.setJobExecuteService(jobId, this);
             try {
@@ -71,14 +71,16 @@ public class JobExecuteService {
                 e.printStackTrace();
             } finally {
                 JobContext.clear();
-                removeJobExecuteState(jobId);
+                finishJob(jobId);
             }
         });
     }
 
     @Process
-    private void removeJobExecuteState(long jobId) {
+    private void finishJob(long jobId) {
         jobExecuteStateRepository.remove(jobId);
+        LoadTestJob loadTestJob = loadTestJobRepository.take(jobId);
+        loadTestJob.setFinished(true);
     }
 
     public boolean isJobScriptValid(String jobScriptName) {
@@ -165,19 +167,6 @@ public class JobExecuteService {
         }
     }
 
-    public int getJobCount(String testId) {
-        List<Long> allJobId = jobExecuteStateRepository.queryAllIds();
-        int count = 0;
-        for (long jobId : allJobId) {
-            JobExecuteState jobExecuteState = jobExecuteStateRepository.find(jobId);
-            if (jobExecuteState.getTestName().equals(testId)) {
-                count++;
-            }
-        }
-        return count;
-    }
-
-
     public void setJobExecuteStateRepository(JobExecuteStateRepository jobExecuteStateRepository) {
         this.jobExecuteStateRepository = jobExecuteStateRepository;
     }
@@ -194,5 +183,7 @@ public class JobExecuteService {
         this.loadTestRepository = loadTestRepository;
     }
 
-
+    public void setLoadTestJobRepository(LoadTestJobRepository loadTestJobRepository) {
+        this.loadTestJobRepository = loadTestJobRepository;
+    }
 }
