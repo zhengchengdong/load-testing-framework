@@ -42,11 +42,13 @@ public class LoadTestService implements LargeScaleTaskServiceRepositorySet {
 
 
     @Process
-    public void createTest(String testName, String jobScriptName, int jobAmount, long currTime) {
+    public void createTest(String testName, String jobScriptName, int jobAmount, String description, long currTime) {
         LoadTest loadTest = new LoadTest();
         loadTest.setName(testName);
         loadTest.setJobScriptName(jobScriptName);
         loadTest.setJobAmount(jobAmount);
+        loadTest.setDescription(description);
+        loadTest.setStartTime(currTime);
         loadTestRepository.put(loadTest);
         LoadTestLargeScaleTask task = loadTest.createLargeScaleTask();
         LargeScaleTaskService.createTask(this,
@@ -57,13 +59,15 @@ public class LoadTestService implements LargeScaleTaskServiceRepositorySet {
 
     @Process
     public void createGraduallyTest(String testName, String jobScriptName, int jobAmount,
-                                    int jobAddAmount, long jobAddInterval, long currTime) {
+                                    int jobAddAmount, long jobAddInterval, String description, long currTime) {
         LoadTest loadTest = new LoadTest();
         loadTest.setName(testName);
         loadTest.setJobScriptName(jobScriptName);
         loadTest.setJobAmount(jobAmount);
         loadTest.setJobAddAmount(jobAddAmount);
         loadTest.setJobAddInterval(jobAddInterval);
+        loadTest.setDescription(description);
+        loadTest.setStartTime(currTime);
         loadTestRepository.put(loadTest);
         LoadTestLargeScaleTask task = loadTest.createLargeScaleTask();
         LargeScaleTaskService.createTask(this,
@@ -168,11 +172,11 @@ public class LoadTestService implements LargeScaleTaskServiceRepositorySet {
     public List<LoadTest> getAllTests() {
         List<LoadTest> loadTests = new ArrayList<>();
         List<String> allTestNames = loadTestRepository.getAllTestNames();
-        //给allTestNames排序
-        allTestNames.sort(String::compareTo);
         for (String testName : allTestNames) {
             loadTests.add(loadTestRepository.find(testName));
         }
+        //loadTests 按 startTime 降序排列
+        loadTests.sort((o1, o2) -> (int) (o2.getStartTime() - o1.getStartTime()));
         return loadTests;
     }
 

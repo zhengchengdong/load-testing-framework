@@ -60,7 +60,7 @@ public class LoadTestingTest {
         //创建一个测试，指定要执行哪个Job脚本,Job增加方式，Job总数（HelloWorld,全量，2个）
         boolean jobScriptValid = jobExecuteService.isJobScriptValid(jobScriptName);
         assert jobScriptValid;
-        loadTestService.createTest(testName, jobScriptName, 2, System.currentTimeMillis());
+        loadTestService.createTest(testName, jobScriptName, 2, "", System.currentTimeMillis());
         //定时线程来给测试添加Job（全量2个）
         loadTestService.addJobForTest(testName, System.currentTimeMillis());
         LoadTestLargeScaleTask loadTestTask1 = loadTestService.getLoadTestLargeScaleTask(testName);
@@ -97,7 +97,7 @@ public class LoadTestingTest {
 
         //创建一个测试，指定要执行哪种Job,Job增加方式，Job总数（HelloWorld,每秒1个，3个）
         loadTestService.createGraduallyTest(testName, jobScriptName, 2, 1, 2000L,
-                System.currentTimeMillis());
+                "", System.currentTimeMillis());
         //定时线程来给测试添加Job（先添加1个）
         loadTestService.addJobForTest(testName, System.currentTimeMillis());
         LoadTestLargeScaleTask loadTestTask3 = loadTestService.getLoadTestLargeScaleTask(testName);

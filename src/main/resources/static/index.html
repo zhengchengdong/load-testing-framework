@@ -18,6 +18,8 @@
                 <th>测试脚本</th>
                 <th>作业数量</th>
                 <th>提交方式</th>
+                <th>说明</th>
+                <th>开始时间</th>
                 <th>操作</th>
             </tr>
             </thead>
@@ -57,7 +59,10 @@
                 <input type="number" id="increment" name="increment">
             </div>
 
-            <button type="submit">开始测试</button>
+            <label for="test-name">说明:</label>
+            <textarea id="description" name="description" class="description-textarea"></textarea>
+
+            <button type="submit" class="submit-button">开始测试</button>
         </form>
     </div>
 </div>

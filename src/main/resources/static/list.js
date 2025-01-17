@@ -41,7 +41,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 jobCount: parseInt(formData.get('job-count')),
                 submitMethod: formData.get('submit-method'),
                 interval: formData.get('interval') ? parseInt(formData.get('interval')) : null,
-                increment: formData.get('increment') ? parseInt(formData.get('increment')) : null
+                increment: formData.get('increment') ? parseInt(formData.get('increment')) : null,
+                description: formData.get('description')
             };
             fetch('/api/tests', {
                 method: 'POST',
@@ -84,6 +85,8 @@ document.addEventListener('DOMContentLoaded', function() {
                             <td>${test.scriptName}</td>
                             <td>${test.jobCount}</td>
                             <td>${test.submitMethod === 'full' ? '全量' : '逐渐增加'}</td>
+                            <td>${test.startTime ? new Date(test.startTime).toLocaleString() : ''}</td>
+                            <td>${test.description}</td>
                             <td>
                                 <button class="detail-btn">详情</button>
                                 <button class="delete-btn">删除</button>

@@ -7,6 +7,7 @@ public class CreateTestRequest {
     private String submitMethod;
     private Long interval;
     private Integer increment;
+    private String description;
 
     public String getName() {
         return name;
@@ -54,5 +55,13 @@ public class CreateTestRequest {
 
     public void setIncrement(Integer increment) {
         this.increment = increment;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

@@ -20,6 +20,10 @@ public class LoadTest {
 
     private boolean stopped;
 
+    private String description;
+
+    private long startTime;
+
     public LoadTestLargeScaleTask createLargeScaleTask() {
         LoadTestLargeScaleTask task = new LoadTestLargeScaleTask();
         task.setName(name);
@@ -90,5 +94,19 @@ public class LoadTest {
         this.stopped = stopped;
     }
 
+    public String getDescription() {
+        return description;
+    }
 
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public long getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
+    }
 }

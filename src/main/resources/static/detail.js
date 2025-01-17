@@ -13,6 +13,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('rps').textContent = test.rps;
                     document.getElementById('avg-latency').textContent = test.avgLatency;
                     document.getElementById('failed-requests').textContent = test.failedRequests;
+                    document.getElementById('start-time').textContent = test.startTime ? new Date(test.startTime).toLocaleString() : '';
+                    document.getElementById('description').textContent = test.description;
                 })
                 .catch(error => console.error('加载测试详情失败:', error));
         }

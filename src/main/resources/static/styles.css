@@ -145,6 +145,16 @@ button:hover {
     color: black;
 }
 
+.description-textarea {
+    width: 100%;
+    height: 150px; /* 设置默认高度 */
+}
+
+.submit-button {
+    display: block;
+    margin-top: 10px; /* 设置按钮与textarea之间的间距 */
+}
+
 /* 表单样式 */
 form label {
     display: block;

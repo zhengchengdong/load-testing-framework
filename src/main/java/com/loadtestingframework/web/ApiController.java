@@ -36,10 +36,10 @@ public class ApiController {
     public CommonVO createTest(@RequestBody CreateTestRequest request) {
         if (request.getSubmitMethod().equals("full")) {
             loadTestService.createTest(request.getName(), request.getScriptId(), request.getJobCount(),
-                    System.currentTimeMillis());
+                    request.getDescription(), System.currentTimeMillis());
         } else if (request.getSubmitMethod().equals("gradual")) {
             loadTestService.createGraduallyTest(request.getName(), request.getScriptId(), request.getJobCount(),
-                    request.getIncrement(), request.getInterval(), System.currentTimeMillis());
+                    request.getIncrement(), request.getInterval(), request.getDescription(), System.currentTimeMillis());
         }
         return CommonVO.success();
     }

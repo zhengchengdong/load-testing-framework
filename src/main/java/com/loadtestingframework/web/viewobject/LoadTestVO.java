@@ -11,6 +11,8 @@ public class LoadTestVO {
     private String scriptName;
     private int jobCount;
     private String submitMethod;
+    private String description;
+    private String startTime;
 
     public static List<LoadTestVO> fromLoadTests(List<LoadTest> loadTests) {
         return loadTests.stream().map(LoadTestVO::new).collect(Collectors.toList());
@@ -25,6 +27,8 @@ public class LoadTestVO {
         this.scriptName = loadTest.getJobScriptName();
         this.jobCount = loadTest.getJobAmount();
         this.submitMethod = loadTest.isGraduallyAddJob() ? "gradually" : "full";
+        this.description = loadTest.getDescription();
+        this.startTime = String.valueOf(loadTest.getStartTime());
     }
 
     public String getId() {
@@ -65,5 +69,21 @@ public class LoadTestVO {
 
     public void setSubmitMethod(String submitMethod) {
         this.submitMethod = submitMethod;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(String startTime) {
+        this.startTime = startTime;
     }
 }
