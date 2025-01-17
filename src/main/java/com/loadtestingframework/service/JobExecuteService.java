@@ -46,17 +46,12 @@ public class JobExecuteService {
     private ExecutorService threadPool = Executors.newCachedThreadPool();
 
 
-    @Process
+
     public void executeJob(LoadTestLargeScaleTaskSegment taskSegment) {
         long jobId = (long) taskSegment.getId();
         String testName = taskSegment.getTestName();
         String jobScriptName = taskSegment.getJobScriptName();
-        JobExecuteState jobExecuteState = new JobExecuteState();
-        jobExecuteState.setJobId(jobId);
-        jobExecuteState.setTestName(testName);
-        jobExecuteStateRepository.put(jobExecuteState);
-        LoadTestJob loadTestJob = loadTestJobRepository.take(jobId);
-        loadTestJob.setStarted(true);
+        startJob(jobId,testName);
         threadPool.execute(() -> {
             JobContext.setJobExecuteService(jobId, this);
             try {
@@ -74,6 +69,16 @@ public class JobExecuteService {
                 finishJob(jobId);
             }
         });
+    }
+
+    @Process
+    private void startJob(long jobId,String testName) {
+        JobExecuteState jobExecuteState = new JobExecuteState();
+        jobExecuteState.setJobId(jobId);
+        jobExecuteState.setTestName(testName);
+        jobExecuteStateRepository.put(jobExecuteState);
+        LoadTestJob loadTestJob = loadTestJobRepository.take(jobId);
+        loadTestJob.setStarted(true);
     }
 
     @Process

@@ -12,7 +12,7 @@ public class LoadTestVO {
     private int jobCount;
     private String submitMethod;
     private String description;
-    private String startTime;
+    private long startTime;
 
     public static List<LoadTestVO> fromLoadTests(List<LoadTest> loadTests) {
         return loadTests.stream().map(LoadTestVO::new).collect(Collectors.toList());
@@ -28,7 +28,7 @@ public class LoadTestVO {
         this.jobCount = loadTest.getJobAmount();
         this.submitMethod = loadTest.isGraduallyAddJob() ? "gradually" : "full";
         this.description = loadTest.getDescription();
-        this.startTime = String.valueOf(loadTest.getStartTime());
+        this.startTime = loadTest.getStartTime();
     }
 
     public String getId() {
@@ -79,11 +79,11 @@ public class LoadTestVO {
         this.description = description;
     }
 
-    public String getStartTime() {
+    public long getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(String startTime) {
+    public void setStartTime(long startTime) {
         this.startTime = startTime;
     }
 }

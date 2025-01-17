@@ -11,6 +11,8 @@ public class LoadTestDetailVO {
     private int avgLatency;
     private int failedRequests;
     private int totalRequests;
+    private String description;
+    private long startTime;
 
     public LoadTestDetailVO() {
     }
@@ -23,6 +25,8 @@ public class LoadTestDetailVO {
         this.avgLatency = testMetrics.getAvgLatency();
         this.failedRequests = testMetrics.getTotalFailRequest();
         this.totalRequests = testMetrics.getTotalRequest();
+        this.description = loadTest.getDescription();
+        this.startTime = loadTest.getStartTime();
     }
 
     public String getName() {
@@ -79,5 +83,21 @@ public class LoadTestDetailVO {
 
     public void setTotalRequests(int totalRequests) {
         this.totalRequests = totalRequests;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public long getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
     }
 }
