@@ -9,6 +9,7 @@ import com.loadtestingframework.web.viewobject.CommonVO;
 import com.loadtestingframework.web.viewobject.JobScriptVO;
 import com.loadtestingframework.web.viewobject.LoadTestDetailVO;
 import com.loadtestingframework.web.viewobject.LoadTestVO;
+import erp.ERP;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -65,7 +66,7 @@ public class ApiController {
     @PostMapping("/tests/{testId}/stop")
     @ResponseBody
     public CommonVO stopTest(@PathVariable String testId) {
-        loadTestService.stopTest(testId);
+        ERP.retry(() -> loadTestService.stopTest(testId), 4, 100);
         return CommonVO.success();
     }
 
