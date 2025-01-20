@@ -102,7 +102,10 @@ public class ScheduledController {
     public void stopJobsForStoppedTest() {
         List<String> allTestNames = loadTestService.getAllTestNames();
         for (String testName : allTestNames) {
-            jobExecuteService.stopJobsForStoppedTest(testName);
+            try {
+                jobExecuteService.stopJobsForStoppedTest(testName);
+            } catch (TakeEntityException e) {
+            }
         }
     }
 
@@ -111,10 +114,9 @@ public class ScheduledController {
      */
     @Scheduled(fixedRate = 10000)
     public void deleteJobsForDeletedTest() {
-        List<String> allTestNames = loadTestService.getAllTestNames();
         List<Long> allJobIds = loadTestService.getAllJobIds();
         for (Long jobId : allJobIds) {
-            loadTestService.deleteJobIfTestNotExist(jobId, allTestNames);
+            loadTestService.deleteJobIfTestNotExist(jobId);
             try {
                 Thread.sleep(20L);
             } catch (InterruptedException e) {

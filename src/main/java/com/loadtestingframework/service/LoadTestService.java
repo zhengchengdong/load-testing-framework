@@ -187,7 +187,8 @@ public class LoadTestService implements LargeScaleTaskServiceRepositorySet {
         int currentJobAmount = 0;
         for (long jobId : allJobIds) {
             LoadTestJob loadTestJob = loadTestJobRepository.find(jobId);
-            if (loadTestJob.getTestName().equals(testName)) {
+            if (loadTestJob.getTestName().equals(testName) &&
+                    !loadTestJob.isFinished()) {
                 currentJobAmount++;
             }
         }
@@ -199,9 +200,13 @@ public class LoadTestService implements LargeScaleTaskServiceRepositorySet {
     }
 
     @Process
-    public void deleteJobIfTestNotExist(Long jobId, List<String> allTestNames) {
+    public void deleteJobIfTestNotExist(Long jobId) {
         LoadTestJob loadTestJob = loadTestJobRepository.find(jobId);
-        if (!allTestNames.contains(loadTestJob.getTestName())) {
+        if (loadTestJob == null) {
+            return;
+        }
+        LoadTest loadTest = loadTestRepository.find(loadTestJob.getTestName());
+        if (loadTest == null) {
             loadTestJobRepository.remove(jobId);
         }
     }

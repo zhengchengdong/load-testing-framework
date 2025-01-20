@@ -46,12 +46,11 @@ public class JobExecuteService {
     private ExecutorService threadPool = Executors.newCachedThreadPool();
 
 
-
     public void executeJob(LoadTestLargeScaleTaskSegment taskSegment) {
         long jobId = (long) taskSegment.getId();
         String testName = taskSegment.getTestName();
         String jobScriptName = taskSegment.getJobScriptName();
-        startJob(jobId,testName);
+        startJob(jobId, testName);
         threadPool.execute(() -> {
             JobContext.setJobExecuteService(jobId, this);
             try {
@@ -72,7 +71,7 @@ public class JobExecuteService {
     }
 
     @Process
-    private void startJob(long jobId,String testName) {
+    private void startJob(long jobId, String testName) {
         JobExecuteState jobExecuteState = new JobExecuteState();
         jobExecuteState.setJobId(jobId);
         jobExecuteState.setTestName(testName);
@@ -157,7 +156,6 @@ public class JobExecuteService {
         return httpExchangeIdGenerator.generateId();
     }
 
-    @Process
     public void stopJobsForStoppedTest(String testName) {
         LoadTest loadTest = loadTestRepository.find(testName);
         if (!loadTest.isStopped()) {
@@ -167,7 +165,7 @@ public class JobExecuteService {
         for (long jobId : allJobIds) {
             JobExecuteState jobExecuteState = jobExecuteStateRepository.find(jobId);
             if (jobExecuteState.getTestName().equals(testName)) {
-                jobExecuteStateRepository.remove(jobId);
+                finishJob(jobId);
             }
         }
     }
