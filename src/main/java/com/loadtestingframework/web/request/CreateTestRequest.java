@@ -5,7 +5,7 @@ public class CreateTestRequest {
     private String scriptId;
     private int jobCount;
     private String submitMethod;
-    private Long interval;
+    private Integer interval;
     private Integer increment;
     private String description;
 
@@ -41,11 +41,11 @@ public class CreateTestRequest {
         this.submitMethod = submitMethod;
     }
 
-    public Long getInterval() {
+    public Integer getInterval() {
         return interval;
     }
 
-    public void setInterval(Long interval) {
+    public void setInterval(Integer interval) {
         this.interval = interval;
     }
 

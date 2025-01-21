@@ -116,5 +116,6 @@ public class LoadTestLargeScaleTask extends LargeScaleTaskBase {
     public void setJobAddedAmount(int jobAddedAmount) {
         this.jobAddedAmount = jobAddedAmount;
     }
-    
+
+
 }

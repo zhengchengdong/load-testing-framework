@@ -22,7 +22,7 @@ public class ScheduledController {
     /**
      * 给测试添加Job
      */
-    @Scheduled(fixedRate = 1000)
+    @Scheduled(fixedRate = 30)
     public void addJobForTest() {
         boolean noTestNeedToAddJob = false;
         while (!noTestNeedToAddJob) {
@@ -48,7 +48,7 @@ public class ScheduledController {
     /**
      * 获取Job，并执行
      */
-    @Scheduled(fixedRate = 10)
+    @Scheduled(fixedRate = 1000)
     public void getAndExecuteJob() {
         List<String> allTestNames = loadTestService.getAllTestNames();
         for (String testName : allTestNames) {
@@ -110,7 +110,7 @@ public class ScheduledController {
     }
 
     /**
-     * 删除已被删除的测试的Job
+     * 删除已删除的测试的Job
      */
     @Scheduled(fixedRate = 10000)
     public void deleteJobsForDeletedTest() {

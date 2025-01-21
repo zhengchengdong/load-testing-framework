@@ -83,6 +83,9 @@ public class LoadTestService implements LargeScaleTaskServiceRepositorySet {
     @Process
     public boolean addJobForTest(String testName, long currTime) {
         LoadTest loadTest = loadTestRepository.find(testName);
+        if (loadTest == null) {
+            return false;
+        }
         LoadTestLargeScaleTask loadTestTask = loadTestLargeScaleTaskRepository.take(testName);
         if (loadTest.isStopped() || loadTestTask.isAllJobAdded()) {
             return false;
@@ -182,16 +185,22 @@ public class LoadTestService implements LargeScaleTaskServiceRepositorySet {
 
     @Process
     public void calculateCurrentJobAmount(String testName) {
-        LoadTest loadTest = loadTestRepository.take(testName);
+        LoadTest loadTest = loadTestRepository.find(testName);
+        if (loadTest == null) {
+            return;
+        }
         List<Long> allJobIds = loadTestJobRepository.getAllIds();
         int currentJobAmount = 0;
         for (long jobId : allJobIds) {
             LoadTestJob loadTestJob = loadTestJobRepository.find(jobId);
-            if (loadTestJob.getTestName().equals(testName) &&
-                    !loadTestJob.isFinished()) {
+            if (loadTestJob == null) {
+                continue;
+            }
+            if (loadTestJob.getTestName().equals(testName)) {
                 currentJobAmount++;
             }
         }
+        loadTest = loadTestRepository.take(testName);
         loadTest.setCurrentJobAmount(currentJobAmount);
     }
 

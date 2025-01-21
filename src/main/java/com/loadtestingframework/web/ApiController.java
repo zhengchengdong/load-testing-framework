@@ -40,7 +40,7 @@ public class ApiController {
                     request.getDescription(), System.currentTimeMillis());
         } else if (request.getSubmitMethod().equals("gradual")) {
             loadTestService.createGraduallyTest(request.getName(), request.getScriptId(), request.getJobCount(),
-                    request.getIncrement(), request.getInterval(), request.getDescription(), System.currentTimeMillis());
+                    request.getIncrement(), request.getInterval() * 1000L, request.getDescription(), System.currentTimeMillis());
         }
         return CommonVO.success();
     }

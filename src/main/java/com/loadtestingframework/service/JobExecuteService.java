@@ -65,7 +65,7 @@ public class JobExecuteService {
                 e.printStackTrace();
             } finally {
                 JobContext.clear();
-                finishJob(jobId);
+                removeJob(jobId);
             }
         });
     }
@@ -81,10 +81,13 @@ public class JobExecuteService {
     }
 
     @Process
-    private void finishJob(long jobId) {
+    private void removeJobExecuteState(long jobId) {
         jobExecuteStateRepository.remove(jobId);
-        LoadTestJob loadTestJob = loadTestJobRepository.take(jobId);
-        loadTestJob.setFinished(true);
+    }
+
+    @Process
+    private void removeJob(long jobId) {
+        loadTestJobRepository.remove(jobId);
     }
 
     public boolean isJobScriptValid(String jobScriptName) {
@@ -165,7 +168,7 @@ public class JobExecuteService {
         for (long jobId : allJobIds) {
             JobExecuteState jobExecuteState = jobExecuteStateRepository.find(jobId);
             if (jobExecuteState.getTestName().equals(testName)) {
-                finishJob(jobId);
+                removeJobExecuteState(jobId);
             }
         }
     }

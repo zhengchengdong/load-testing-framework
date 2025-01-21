@@ -5,7 +5,6 @@ public class LoadTestJob {
     private String testName;
     private String jobScriptName;
     private boolean started;
-    private boolean finished;
 
     public LoadTestLargeScaleTaskSegment createLargeScaleTaskSegment() {
         LoadTestLargeScaleTaskSegment segment = new LoadTestLargeScaleTaskSegment();
@@ -45,14 +44,6 @@ public class LoadTestJob {
 
     public void setStarted(boolean started) {
         this.started = started;
-    }
-
-    public boolean isFinished() {
-        return finished;
-    }
-
-    public void setFinished(boolean finished) {
-        this.finished = finished;
     }
 
 
