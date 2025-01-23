@@ -189,6 +189,9 @@ public class LoadTestService implements LargeScaleTaskServiceRepositorySet {
         if (loadTest == null) {
             return;
         }
+        if (loadTest.isStopped() && loadTest.getCurrentJobAmount() == 0) {
+            return;
+        }
         List<Long> allJobIds = loadTestJobRepository.getAllIds();
         int currentJobAmount = 0;
         for (long jobId : allJobIds) {
