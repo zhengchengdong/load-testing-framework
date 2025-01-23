@@ -67,6 +67,42 @@ document.addEventListener('DOMContentLoaded', function() {
                 gradualOptions.style.display = radio.value === 'gradual' ? 'block' : 'none';
             });
         });
+
+        // 添加导出CSV按钮的点击事件
+        const exportCsvBtn = document.getElementById('export-csv-btn');
+        if (exportCsvBtn) {
+            exportCsvBtn.addEventListener('click', () => {
+                exportToCSV();
+            });
+        }
+    }
+
+    // 导出CSV的函数
+    function exportToCSV() {
+        fetch('/api/export-csv')
+            .then(response => {
+                if (response.ok) {
+                    return response.blob();
+                } else {
+                    throw new Error('导出CSV失败');
+                }
+            })
+            .then(blob => {
+                // 创建一个临时的URL对象
+                const url = window.URL.createObjectURL(blob);
+                // 创建一个临时的<a>标签用于下载
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'tests.csv'; // 设置下载文件的名称
+                document.body.appendChild(a);
+                a.click(); // 触发下载
+                document.body.removeChild(a); // 下载完成后移除<a>标签
+                window.URL.revokeObjectURL(url); // 释放URL对象
+            })
+            .catch(error => {
+                console.error('导出CSV失败:', error);
+                alert('导出CSV失败，请稍后重试。');
+            });
     }
 
     // 加载测试列表

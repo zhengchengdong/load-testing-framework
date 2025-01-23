@@ -99,6 +99,17 @@ button:hover {
     background-color: #a71d2a;
 }
 
+#export-csv-btn {
+    background-color: #17a2b8; /* 使用与“开始新的测试”按钮不同的颜色 */
+    color: white;
+    margin-bottom: 20px;
+    margin-left: 10px; /* 与“开始新的测试”按钮保持一定间距 */
+}
+
+#export-csv-btn:hover {
+    background-color: #138496;
+}
+
 /* 返回列表按钮样式 */
 .back-btn {
     background-color: #6c757d;

@@ -10,9 +10,21 @@ import com.loadtestingframework.web.viewobject.JobScriptVO;
 import com.loadtestingframework.web.viewobject.LoadTestDetailVO;
 import com.loadtestingframework.web.viewobject.LoadTestVO;
 import erp.ERP;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.tomcat.util.http.fileupload.ByteArrayOutputStream;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -78,4 +90,53 @@ public class ApiController {
         return CommonVO.success(JobScriptVO.fromJobScripts(allScripts));
     }
 
+    //导出CSV
+    @GetMapping("/export-csv")
+    public ResponseEntity<byte[]> exportCsv() throws IOException {
+        List<LoadTest> loadTests = loadTestService.getAllTests();
+        List<String[]> data = new ArrayList<>();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        for (LoadTest test : loadTests) {
+            TestMetrics testMetrics = loadTestService.getTestMetrics(test.getName());
+            if (testMetrics == null) {
+                continue;
+            }
+            LoadTestDetailVO detailVO = new LoadTestDetailVO(test, testMetrics);
+            Date dateForStartTime = new Date(detailVO.getStartTime());
+            String startTimeString = sdf.format(dateForStartTime);
+            data.add(new String[]{
+                    detailVO.getName(),
+                    detailVO.getJobScriptName(),
+                    String.valueOf(detailVO.getCurrentJobCount()),
+                    String.valueOf(detailVO.getSetJobCount()),
+                    String.valueOf(detailVO.getRps()),
+                    String.valueOf(detailVO.getAvgLatency()),
+                    String.valueOf(detailVO.getFailedRequests()),
+                    String.valueOf(detailVO.getTotalRequests()),
+                    detailVO.getDescription(),
+                    startTimeString
+            });
+        }
+
+        // 创建 CSV 文件
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        OutputStreamWriter writer = new OutputStreamWriter(outputStream, Charset.forName("GBK"));
+        CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT
+                .withHeader("测试名称", "测试脚本", "当前作业数量", "设定作业数量", "RPS", "平均延时",
+                        "失败请求数", "总请求数", "说明", "开始时间"));
+
+        for (String[] row : data) {
+            csvPrinter.printRecord(row);
+        }
+
+        csvPrinter.flush();
+        csvPrinter.close();
+
+        // 返回 CSV 文件
+        byte[] csvBytes = outputStream.toByteArray();
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=tests.csv")
+                .contentType(MediaType.parseMediaType("text/csv"))
+                .body(csvBytes);
+    }
 }

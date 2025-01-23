@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(result => {
                     const test = result.data; // 获取 data.data
                     document.getElementById('test-name').textContent = test.name;
+                    document.getElementById('job-script-name').textContent = test.jobScriptName;
                     document.getElementById('current-job-count').textContent = test.currentJobCount;
                     document.getElementById('set-job-count').textContent = test.setJobCount;
                     document.getElementById('total-requests').textContent = test.totalRequests;

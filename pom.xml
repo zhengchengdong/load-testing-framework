@@ -59,6 +59,11 @@
             <artifactId>classgraph</artifactId>
             <version>4.8.154</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-csv</artifactId>
+            <version>1.9.0</version>
+        </dependency>
     </dependencies>
 
     <build>

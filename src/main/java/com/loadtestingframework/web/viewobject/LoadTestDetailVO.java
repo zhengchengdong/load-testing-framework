@@ -5,6 +5,7 @@ import com.loadtestingframework.entity.TestMetrics;
 
 public class LoadTestDetailVO {
     private String name;
+    private String jobScriptName;
     private int currentJobCount;
     private int setJobCount;
     private int rps;
@@ -19,6 +20,7 @@ public class LoadTestDetailVO {
 
     public LoadTestDetailVO(LoadTest loadTest, TestMetrics testMetrics) {
         this.name = loadTest.getName();
+        this.jobScriptName = loadTest.getJobScriptName();
         this.currentJobCount = loadTest.getCurrentJobAmount();
         this.setJobCount = loadTest.getJobAmount();
         this.rps = testMetrics.getRps();
@@ -35,6 +37,14 @@ public class LoadTestDetailVO {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getJobScriptName() {
+        return jobScriptName;
+    }
+
+    public void setJobScriptName(String jobScriptName) {
+        this.jobScriptName = jobScriptName;
     }
 
     public int getCurrentJobCount() {
