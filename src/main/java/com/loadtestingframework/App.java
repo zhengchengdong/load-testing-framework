@@ -7,6 +7,7 @@ import com.loadtestingframework.repository.*;
 import dml.id.entity.IdGenerator;
 import dml.id.entity.SnowflakeIdGenerator;
 import erp.ERP;
+import erp.redis.ERPRedis;
 import erp.redis.RedisRepository;
 import erp.repository.factory.RepositoryFactory;
 import erp.repository.factory.SingletonRepositoryFactory;
@@ -28,6 +29,7 @@ public class App {
 
     public static void main(String[] args) {
         ERP.useAnnotation();
+        ERPRedis.usePipelineAnnotation();
         ApplicationContext context = SpringApplication.run(App.class, args);
     }
 

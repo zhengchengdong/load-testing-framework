@@ -9,6 +9,7 @@ import dml.largescaletaskmanagement.service.LargeScaleTaskService;
 import dml.largescaletaskmanagement.service.repositoryset.LargeScaleTaskServiceRepositorySet;
 import dml.largescaletaskmanagement.service.result.TakeTaskSegmentToExecuteResult;
 import erp.annotation.Process;
+import erp.redis.pipeline.RedisPipeline;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -37,11 +38,8 @@ public class LoadTestService implements LargeScaleTaskServiceRepositorySet {
     @Autowired
     private TestMetricsRepository testMetricsRepository;
 
-    @Autowired
-    private HttpExchangeRepository httpExchangeRepository;
-
-
     @Process
+    @RedisPipeline
     public void createTest(String testName, String jobScriptName, int jobAmount, String description, long currTime) {
         LoadTest loadTest = new LoadTest();
         loadTest.setName(testName);
@@ -57,7 +55,12 @@ public class LoadTestService implements LargeScaleTaskServiceRepositorySet {
                 testName);
     }
 
+    @Autowired
+    private HttpExchangeRepository httpExchangeRepository;
+
+
     @Process
+    @RedisPipeline
     public void createGraduallyTest(String testName, String jobScriptName, int jobAmount,
                                     int jobAddAmount, long jobAddInterval, String description, long currTime) {
         LoadTest loadTest = new LoadTest();
@@ -81,6 +84,7 @@ public class LoadTestService implements LargeScaleTaskServiceRepositorySet {
     }
 
     @Process
+    @RedisPipeline
     public boolean addJobForTest(String testName, long currTime) {
         LoadTest loadTest = loadTestRepository.find(testName);
         if (loadTest == null) {
@@ -122,6 +126,7 @@ public class LoadTestService implements LargeScaleTaskServiceRepositorySet {
     }
 
     @Process
+    @RedisPipeline
     public LoadTestLargeScaleTaskSegment takeJobToExecute(String testName, long currTime) {
         TakeTaskSegmentToExecuteResult result = LargeScaleTaskService.takeTaskSegmentToExecute(this,
                 testName, currTime, 1, 1);
@@ -135,12 +140,14 @@ public class LoadTestService implements LargeScaleTaskServiceRepositorySet {
     }
 
     @Process
+    @RedisPipeline
     public void stopTest(String testName) {
         LoadTest loadTest = loadTestRepository.take(testName);
         loadTest.setStopped(true);
     }
 
     @Process
+    @RedisPipeline
     public void calculateTestMetrics(String testName) {
         TestMetrics testMetrics = new TestMetrics();
         testMetrics.setTestName(testName);
@@ -158,6 +165,7 @@ public class LoadTestService implements LargeScaleTaskServiceRepositorySet {
     }
 
     @Process
+    @RedisPipeline
     public void deleteTest(String testName) {
         loadTestRepository.remove(testName);
         loadTestLargeScaleTaskRepository.remove(testName);
@@ -184,6 +192,7 @@ public class LoadTestService implements LargeScaleTaskServiceRepositorySet {
     }
 
     @Process
+    @RedisPipeline
     public void calculateCurrentJobAmount(String testName) {
         LoadTest loadTest = loadTestRepository.find(testName);
         if (loadTest == null) {
@@ -212,6 +221,7 @@ public class LoadTestService implements LargeScaleTaskServiceRepositorySet {
     }
 
     @Process
+    @RedisPipeline
     public void deleteJobIfTestNotExist(Long jobId) {
         LoadTestJob loadTestJob = loadTestJobRepository.find(jobId);
         if (loadTestJob == null) {
