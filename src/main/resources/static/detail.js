@@ -13,7 +13,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('total-requests').textContent = test.totalRequests;
                     document.getElementById('rps').textContent = test.rps;
                     document.getElementById('avg-latency').textContent = test.avgLatency;
-                    document.getElementById('failed-requests').textContent = test.failedRequests;
+
+                    // 获取失败请求链接元素
+                    const failedRequestsElement = document.getElementById('failed-requests');
+                    // 设置链接的文本内容
+                    failedRequestsElement.textContent = test.failedRequests;
+                    // 动态设置链接的href，加入testId参数
+                    failedRequestsElement.href = `failed-requests.html?testId=${testId}`;
+
                     document.getElementById('start-time').textContent = test.startTime ? new Date(test.startTime).toLocaleString() : '';
                     document.getElementById('description').textContent = test.description;
                 })

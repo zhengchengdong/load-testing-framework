@@ -20,7 +20,7 @@ public class HelloWorldJobScript {
             }
             long endTime = System.currentTimeMillis();
             int httpCode = 200;
-            jobExecuteService.recordHttpExchange(jobId, startTime, endTime, httpCode);
+            jobExecuteService.recordHttpExchange(jobId, startTime, endTime, httpCode, "");
         }
     }
 }

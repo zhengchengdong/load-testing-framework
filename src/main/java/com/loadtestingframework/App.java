@@ -1,5 +1,6 @@
 package com.loadtestingframework;
 
+import com.loadtestingframework.entity.LoadTestFailures;
 import com.loadtestingframework.entity.LoadTestLargeScaleTask;
 import com.loadtestingframework.entity.LoadTestLargeScaleTaskSegment;
 import com.loadtestingframework.entity.TestMetrics;
@@ -63,6 +64,12 @@ public class App {
     public LoadTestLargeScaleTaskSegmentRepository loadTestLargeScaleTaskSegmentRepository() {
         return RepositoryFactory.newInstance(LoadTestLargeScaleTaskSegmentRepository.class,
                 new RedisRepository(redisTemplate, LoadTestLargeScaleTaskSegment.class));
+    }
+
+    @Bean
+    public LoadTestFailuresRepository loadTestFailuresRepository() {
+        return RepositoryFactory.newInstance(LoadTestFailuresRepository.class,
+                new RedisRepository(redisTemplate, LoadTestFailures.class));
     }
 
 }

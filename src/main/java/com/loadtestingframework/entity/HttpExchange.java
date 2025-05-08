@@ -7,6 +7,7 @@ public class HttpExchange {
     private long startTime;
     private long endTime;
     private int httpCode;
+    private String responseBody;
 
     public long getId() {
         return id;
@@ -54,5 +55,13 @@ public class HttpExchange {
 
     public void setHttpCode(int httpCode) {
         this.httpCode = httpCode;
+    }
+
+    public String getResponseBody() {
+        return responseBody;
+    }
+
+    public void setResponseBody(String responseBody) {
+        this.responseBody = responseBody;
     }
 }

@@ -38,6 +38,13 @@ public class LoadTestService implements LargeScaleTaskServiceRepositorySet {
     @Autowired
     private TestMetricsRepository testMetricsRepository;
 
+    @Autowired
+    private HttpExchangeRepository httpExchangeRepository;
+
+    @Autowired
+    private LoadTestFailuresRepository loadTestFailuresRepository;
+
+
     @Process
     @RedisPipeline
     public void createTest(String testName, String jobScriptName, int jobAmount, String description, long currTime) {
@@ -54,9 +61,6 @@ public class LoadTestService implements LargeScaleTaskServiceRepositorySet {
         LargeScaleTaskService.setTaskReadyToProcess(this,
                 testName);
     }
-
-    @Autowired
-    private HttpExchangeRepository httpExchangeRepository;
 
 
     @Process
@@ -191,6 +195,17 @@ public class LoadTestService implements LargeScaleTaskServiceRepositorySet {
         return loadTests;
     }
 
+    public List<HttpExchange> getTestFailures(String testId) {
+        LoadTestFailures loadTestFailures = loadTestFailuresRepository.find(testId);
+        List<HttpExchange> failures = loadTestFailures.getFailures();
+        if (failures == null) {
+            return new ArrayList<>();
+        }
+        //按开始时间升序排列
+        failures.sort((o1, o2) -> (int) (o1.getStartTime() - o2.getStartTime()));
+        return failures;
+    }
+
     @Process
     @RedisPipeline
     public void calculateCurrentJobAmount(String testName) {
@@ -274,4 +289,6 @@ public class LoadTestService implements LargeScaleTaskServiceRepositorySet {
     public void setLoadTestLargeScaleTaskSegmentRepository(LoadTestLargeScaleTaskSegmentRepository loadTestLargeScaleTaskSegmentRepository) {
         this.loadTestLargeScaleTaskSegmentRepository = loadTestLargeScaleTaskSegmentRepository;
     }
+
+
 }

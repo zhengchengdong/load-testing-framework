@@ -23,7 +23,8 @@ public class CommonHttpSender {
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             long endTime = System.currentTimeMillis();
             int httpCode = response.statusCode();
-            jobExecuteService.recordHttpExchange(jobId, startTime, endTime, httpCode);
+            String responseBody = response.body();
+            jobExecuteService.recordHttpExchange(jobId, startTime, endTime, httpCode, responseBody);
             return response;
         } catch (IOException e) {
             throw new RuntimeException(e);

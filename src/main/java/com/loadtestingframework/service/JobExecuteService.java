@@ -39,6 +39,9 @@ public class JobExecuteService {
     @Autowired
     private LoadTestJobRepository loadTestJobRepository;
 
+    @Autowired
+    private LoadTestFailuresRepository loadTestFailuresRepository;
+
 
     /**
      * 线程池
@@ -125,12 +128,12 @@ public class JobExecuteService {
     }
 
 
-    public void recordHttpExchange(long jobId, long startTime, long endTime, int httpCode) {
-        threadPool.execute(() -> doRecordHttpExchange(generateHttpExchangeId(), jobId, startTime, endTime, httpCode));
+    public void recordHttpExchange(long jobId, long startTime, long endTime, int httpCode, String responseBody) {
+        threadPool.execute(() -> doRecordHttpExchange(generateHttpExchangeId(), jobId, startTime, endTime, httpCode, responseBody));
     }
 
     @Process
-    private void doRecordHttpExchange(long id, long jobId, long startTime, long endTime, int httpCode) {
+    private void doRecordHttpExchange(long id, long jobId, long startTime, long endTime, int httpCode, String responseBody) {
         JobExecuteState jobExecuteState = jobExecuteStateRepository.find(jobId);
         if (jobExecuteState == null) {
             return;
@@ -142,7 +145,14 @@ public class JobExecuteService {
         httpExchange.setStartTime(startTime);
         httpExchange.setEndTime(endTime);
         httpExchange.setHttpCode(httpCode);
+        httpExchange.setResponseBody(responseBody);
         httpExchangeRepository.put(httpExchange);
+        //记录失败
+        if (httpCode != 200) {
+            LoadTestFailures loadTestFailures = loadTestFailuresRepository.takeOrPutIfAbsent(jobExecuteState.getTestName(),
+                    new LoadTestFailures(jobExecuteState.getTestName()));
+            loadTestFailures.addFailure(httpExchange);
+        }
     }
 
     @Process

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>压测工具 - 失败请求列表</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .failures-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .failures-table th, .failures-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .failures-table th {
+            background-color: #f2f2f2;
+        }
+        .failures-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .response-cell {
+            max-width: 400px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .expand-btn {
+            cursor: pointer;
+            color: blue;
+            text-decoration: underline;
+            margin-left: 10px;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .pagination button {
+            margin: 0 5px;
+            padding: 5px 10px;
+        }
+        .test-info {
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- 返回详情按钮 -->
+    <button id="back-to-detail-btn" class="back-btn">返回测试详情</button>
+
+    <h1>压测工具 - 失败请求列表</h1>
+
+    <!-- 测试信息摘要 -->
+    <div class="test-info">
+        <h2 id="test-name">测试名称</h2>
+        <p id="test-summary">正在加载测试信息...</p>
+    </div>
+
+    <div class="content">
+        <!-- 失败请求列表 -->
+        <div id="failures-container">
+            <table class="failures-table">
+                <thead>
+                <tr>
+                    <th>时间</th>
+                    <th>HTTP状态码</th>
+                    <th>响应内容</th>
+                    <th>请求耗时</th>
+                </tr>
+                </thead>
+                <tbody id="failures-list">
+                <!-- 动态填充数据 -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 无数据提示 -->
+        <div id="no-failures" style="display: none;">
+            <p>当前测试没有失败的请求记录。</p>
+        </div>
+    </div>
+</div>
+
+<!-- 引用失败请求页面的 JavaScript 文件 -->
+<script src="failed-requests.js"></script>
+</body>
+</html>

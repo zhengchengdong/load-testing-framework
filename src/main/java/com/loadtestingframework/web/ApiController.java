@@ -1,5 +1,6 @@
 package com.loadtestingframework.web;
 
+import com.loadtestingframework.entity.HttpExchange;
 import com.loadtestingframework.entity.LoadTest;
 import com.loadtestingframework.entity.TestMetrics;
 import com.loadtestingframework.service.JobExecuteService;
@@ -72,6 +73,14 @@ public class ApiController {
         LoadTest loadTest = loadTestService.getLoadTest(testId);
         TestMetrics testMetrics = loadTestService.getTestMetrics(testId);
         return CommonVO.success(new LoadTestDetailVO(loadTest, testMetrics));
+    }
+
+    //GET /api/tests/${testId}/failures：获取指定测试的失败请求
+    @GetMapping("/tests/{testId}/failures")
+    @ResponseBody
+    public CommonVO getTestFailures(@PathVariable String testId) {
+        List<HttpExchange> failures = loadTestService.getTestFailures(testId);
+        return CommonVO.success(failures);
     }
 
     //POST /api/tests/{testId}/stop：停止指定测试

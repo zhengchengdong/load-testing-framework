@@ -43,11 +43,12 @@ public class AjaxPostSender {
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             long endTime = System.currentTimeMillis();
             int httpCode = response.statusCode();
-            jobExecuteService.recordHttpExchange(jobId, startTime, endTime, httpCode);
+            String responseBody = response.body();
+            jobExecuteService.recordHttpExchange(jobId, startTime, endTime, httpCode, responseBody);
             if (httpCode != 200) {
                 return null;
             }
-            T responseObj = objectMapper.readValue(response.body(), responseType);
+            T responseObj = objectMapper.readValue(responseBody, responseType);
             return responseObj;
         } catch (Exception e) {
             throw new RuntimeException(e);
