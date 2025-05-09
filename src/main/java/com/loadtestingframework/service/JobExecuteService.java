@@ -40,7 +40,7 @@ public class JobExecuteService {
     private LoadTestJobRepository loadTestJobRepository;
 
     @Autowired
-    private LoadTestFailuresRepository loadTestFailuresRepository;
+    private FailureHttpExchangeRepository failureHttpExchangeRepository;
 
 
     /**
@@ -128,12 +128,12 @@ public class JobExecuteService {
     }
 
 
-    public void recordHttpExchange(long jobId, long startTime, long endTime, int httpCode, String responseBody) {
-        threadPool.execute(() -> doRecordHttpExchange(generateHttpExchangeId(), jobId, startTime, endTime, httpCode, responseBody));
+    public void recordHttpExchange(long jobId, long startTime, long endTime, String url, int httpCode, String responseBody) {
+        threadPool.execute(() -> doRecordHttpExchange(generateHttpExchangeId(), jobId, startTime, endTime, url, httpCode, responseBody));
     }
 
     @Process
-    private void doRecordHttpExchange(long id, long jobId, long startTime, long endTime, int httpCode, String responseBody) {
+    private void doRecordHttpExchange(long id, long jobId, long startTime, long endTime, String url, int httpCode, String responseBody) {
         JobExecuteState jobExecuteState = jobExecuteStateRepository.find(jobId);
         if (jobExecuteState == null) {
             return;
@@ -144,14 +144,13 @@ public class JobExecuteService {
         httpExchange.setJobId(jobId);
         httpExchange.setStartTime(startTime);
         httpExchange.setEndTime(endTime);
+        httpExchange.setUrl(url);
         httpExchange.setHttpCode(httpCode);
         httpExchange.setResponseBody(responseBody);
         httpExchangeRepository.put(httpExchange);
         //记录失败
         if (httpCode != 200) {
-            LoadTestFailures loadTestFailures = loadTestFailuresRepository.takeOrPutIfAbsent(jobExecuteState.getTestName(),
-                    new LoadTestFailures(jobExecuteState.getTestName()));
-            loadTestFailures.addFailure(httpExchange);
+            failureHttpExchangeRepository.put(httpExchange);
         }
     }
 

@@ -6,6 +6,7 @@ public class HttpExchange {
     private String testName;
     private long startTime;
     private long endTime;
+    private String url;
     private int httpCode;
     private String responseBody;
 
@@ -47,6 +48,14 @@ public class HttpExchange {
 
     public void setEndTime(long endTime) {
         this.endTime = endTime;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     public int getHttpCode() {

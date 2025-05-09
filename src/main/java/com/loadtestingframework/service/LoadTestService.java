@@ -42,7 +42,7 @@ public class LoadTestService implements LargeScaleTaskServiceRepositorySet {
     private HttpExchangeRepository httpExchangeRepository;
 
     @Autowired
-    private LoadTestFailuresRepository loadTestFailuresRepository;
+    private FailureHttpExchangeRepository failureHttpExchangeRepository;
 
 
     @Process
@@ -174,6 +174,13 @@ public class LoadTestService implements LargeScaleTaskServiceRepositorySet {
         loadTestRepository.remove(testName);
         loadTestLargeScaleTaskRepository.remove(testName);
         testMetricsRepository.remove(testName);
+        List<Long> allFailureHttpExchangeIds = failureHttpExchangeRepository.getAllIds();
+        for (long httpExchangeId : allFailureHttpExchangeIds) {
+            HttpExchange httpExchange = failureHttpExchangeRepository.find(httpExchangeId);
+            if (httpExchange.getTestName().equals(testName)) {
+                failureHttpExchangeRepository.remove(httpExchangeId);
+            }
+        }
     }
 
     public TestMetrics getTestMetrics(String testName) {
@@ -195,11 +202,14 @@ public class LoadTestService implements LargeScaleTaskServiceRepositorySet {
         return loadTests;
     }
 
-    public List<HttpExchange> getTestFailures(String testId) {
-        LoadTestFailures loadTestFailures = loadTestFailuresRepository.find(testId);
-        List<HttpExchange> failures = loadTestFailures.getFailures();
-        if (failures == null) {
-            return new ArrayList<>();
+    public List<HttpExchange> getTestFailures(String testName) {
+        List<Long> allHttpExchangeIds = failureHttpExchangeRepository.getAllIds();
+        List<HttpExchange> failures = new ArrayList<>();
+        for (long httpExchangeId : allHttpExchangeIds) {
+            HttpExchange httpExchange = failureHttpExchangeRepository.find(httpExchangeId);
+            if (httpExchange.getTestName().equals(testName)) {
+                failures.add(httpExchange);
+            }
         }
         //按开始时间升序排列
         failures.sort((o1, o2) -> (int) (o1.getStartTime() - o2.getStartTime()));

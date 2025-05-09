@@ -44,7 +44,7 @@ public class AjaxPostSender {
             long endTime = System.currentTimeMillis();
             int httpCode = response.statusCode();
             String responseBody = response.body();
-            jobExecuteService.recordHttpExchange(jobId, startTime, endTime, httpCode, responseBody);
+            jobExecuteService.recordHttpExchange(jobId, startTime, endTime, uriStr, httpCode, responseBody);
             if (httpCode != 200) {
                 return null;
             }

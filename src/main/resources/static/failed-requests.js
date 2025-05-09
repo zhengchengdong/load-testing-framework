@@ -87,6 +87,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             row.innerHTML = `
                 <td>${formattedTime}</td>
+                <td>${failure.url}</td>
                 <td>${failure.httpCode}</td>
                 <td class="response-cell">${shortResponse}${expandButton}</td>
                 <td>${duration} ms</td>

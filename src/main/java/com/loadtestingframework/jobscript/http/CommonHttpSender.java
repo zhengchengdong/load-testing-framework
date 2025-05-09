@@ -24,7 +24,7 @@ public class CommonHttpSender {
             long endTime = System.currentTimeMillis();
             int httpCode = response.statusCode();
             String responseBody = response.body();
-            jobExecuteService.recordHttpExchange(jobId, startTime, endTime, httpCode, responseBody);
+            jobExecuteService.recordHttpExchange(jobId, startTime, endTime, request.uri().toURL().toString(), httpCode, responseBody);
             return response;
         } catch (IOException e) {
             throw new RuntimeException(e);
